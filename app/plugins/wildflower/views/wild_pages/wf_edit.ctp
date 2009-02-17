@@ -264,7 +264,7 @@ $(document).ready(function(){
         $form->input('content', array(
             'type' => 'textarea',
             'tabindex' => '2',
-            'class' => 'tinymce',
+            'class' => 'group_editor',
             'rows' => '25',
             'label' => __('Body', true),
             'div' => array('class' => 'input editor'))),
