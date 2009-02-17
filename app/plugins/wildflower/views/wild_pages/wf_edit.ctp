@@ -178,7 +178,6 @@ var groupEditor = function (){
          * 
          */
         serialize: function() {
-            console.log('Serialize');
             var serialized = new Array();
             
             $('.content-block').each(function() {
