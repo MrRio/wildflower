@@ -5,8 +5,39 @@
     echo 
     $form->create('WildPage', array('url' => $html->url(array('action' => 'wf_update', 'base' => false)), 'class' => 'editor-form'));
 ?>
+<?
+
+$template['content-block'] = <<<EOF
+
+<div class="actions-handle action-attach">
+    <div class="content-block">
+        <img src="' + section.imageurl + '" />
+        <input type="button" value="Change Picture" onclick="groupEditor.changePicture(this)" />
+        <input type="button" value="Remove Picture" onclick="groupEditor.removePicture(this)" />
+        <input type="hidden" class="group-editor-image" value="' + section.image + '" />
+        <textarea class="group-editor-text">' + section.text + '</textarea>
+    </div>
+    <span class="row-actions">
+        <a title="Move up" href="#" onclick="groupEditor.moveSection(this, true)" class="move-up">Move up</a>
+        <a title="Move down" href="#" onclick="groupEditor.moveSection(this, false)" class="move-down">Move down</a>
+        <a title="Delete this page" href="#" class="delete-section" onclick="groupEditor.deleteSection(this)">Delete</a>
+    </span>
+</div>
+
+EOF;
+
+$template['content-block'] = str_replace(array("\n", "\r"), array("", ""), $template['content-block']);
+?>
+<div id="dialog" title="Dialog Title">
+    
+</div>
+
+<link type="text/css" href="<?=$html->url('/wildflower/css/jquery-ui-theme/ui.all.css')?>" rel="Stylesheet" />
+<script type="text/javascript" src="<?=$html->url('/wildflower/js/jquery-ui-personalized-1.6rc6.min.js')?>"></script>
 <script src="<?=$html->url('/wildflower/js/jquery.json-1.3.min.js')?>"></script>
 <script type="text/javascript">
+
+var base = '<?=$html->url("/")?>';
 jQuery.fn.swap = function(b) {
     b = jQuery(b)[0];
     var a = this[0];
@@ -41,7 +72,6 @@ var groupEditor = function (){
                 parsedContent = [{type:'content', image: '', text:''}];
             }
             
-            //console.log(parsedContent);
             for(var i = 0; i < parsedContent.length; i ++) {
                 var section = parsedContent[i];
                     switch(section.type) {
@@ -59,7 +89,11 @@ var groupEditor = function (){
         },
         
         appendContentBlock: function(section) {
-            $(el).parent().append('<div class="actions-handle action-attach"><div class="content-block"><input type="text" class="group-editor-image" value="' + section.image + '" /><textarea class="group-editor-text">' + section.text + '</textarea></div><span class="row-actions"><a title="Move up" href="#" onclick="groupEditor.moveSection(this, true)">^</a><a title="Move down" href="#" onclick="groupEditor.moveSection(this, false)">v</a><a title="Delete this page" href="#" class="delete-section" onclick="groupEditor.deleteSection(this)">x</a></span></div>');
+            section.imageurl = base + 'img/admin/no-image-selected.gif';
+            if(section.image != '') {
+                section.imageurl = base + 'wildflower/thumbnail_by_id/' + section.image + '/50/50/1';
+            }
+            $(el).parent().append('<?=$template["content-block"]?>');
             this.attachHover();
         },
         
@@ -67,6 +101,7 @@ var groupEditor = function (){
             if (confirm('Are you sure you want to remove this?')) {
                 $(element).parent().parent().remove();
             }
+            return false;
         },
         
         moveSection: function(element, up) {
@@ -84,6 +119,15 @@ var groupEditor = function (){
                     alert('Sorry, this section cannot be moved any further down.');
                 }
             }
+            return false;
+        },
+        
+        changePicture: function(element) {
+            $('#dialog').dialog('open');
+        },
+        
+        removePicture: function(element) {
+            
         },
         
         appendFileBlock: function() {
@@ -149,6 +193,21 @@ $(document).ready(function(){
         //groupEditor();
         groupEditor.init(this, i);
     });
+
+    // Dialog			
+    $('#dialog').dialog({
+    	autoOpen: false,
+        modal: true,
+    	width: 600,
+    	buttons: {
+    		"OK": function() { 
+    			$(this).dialog("close"); 
+    		}, 
+    		"Cancel": function() { 
+    			$(this).dialog("close"); 
+    		} 
+    	}
+    });
 });
 
 
@@ -162,7 +221,35 @@ $(document).ready(function(){
     .content-block textarea {
         width: 99%;
         height: 200px;
+        margin-top: 10px;
     }
+    .content-block img {
+        vertical-align:middle;
+    }
+    .move-up, .move-down, .delete-section {
+        width: 11px;
+        height: 11px;
+        display:block;
+        text-indent: -1000em;
+        overflow: hidden;
+        float: left;
+        background-repeat: no-repeat;
+        background-position: 1px 1px;
+        padding: 1px;
+    }
+    
+    .move-up {
+        background-image: url(/cms/img/admin/up.gif);        
+    }
+    
+    .move-down {
+        background-image: url(/cms/img/admin/down.gif);        
+    }
+    
+    .delete-section {
+        background-image: url(/cms/img/admin/delete.gif);        
+    }
+    
 </style>
 <div id="title-content">
     <?php
