@@ -8,6 +8,11 @@ class WildAssetsController extends WildflowerAppController {
         'order' => array('created' => 'desc')
     );
 	
+    function wf_choose() {
+        $assets = $this->WildAsset->findAll(array('mime' => array('image/jpeg', 'image/gif', 'image/png')));
+        $this->set('assets', $assets);
+    }
+    
 	function wf_create() {
 	    $this->WildAsset->create($this->data);
 	    

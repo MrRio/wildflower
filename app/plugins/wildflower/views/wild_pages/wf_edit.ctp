@@ -29,9 +29,7 @@ EOF;
 
 $template['content-block'] = str_replace(array("\n", "\r"), array("", ""), $template['content-block']);
 ?>
-<div id="dialog" title="Dialog Title">
-    
-</div>
+<div id="dialog" title="Choose an image"></div>
 
 <link type="text/css" href="<?=$html->url('/wildflower/css/jquery-ui-theme/ui.all.css')?>" rel="Stylesheet" />
 <script type="text/javascript" src="<?=$html->url('/wildflower/js/jquery-ui-personalized-1.6rc6.min.js')?>"></script>
@@ -58,6 +56,7 @@ var groupEditor = function (){
     var id;
     
     return {
+        currentGroupElement: null,
         // Public functions
         init: function(element, i) {
             el = element;
@@ -124,6 +123,7 @@ var groupEditor = function (){
         },
         
         changePicture: function(element) {
+            this.currentGroupElement = element;
             $('#dialog').dialog('open');
         },
         
@@ -178,6 +178,7 @@ var groupEditor = function (){
          * 
          */
         serialize: function() {
+            console.log('Serialize');
             var serialized = new Array();
             
             $('.content-block').each(function() {
@@ -188,7 +189,7 @@ var groupEditor = function (){
     }
     
 }()
-
+/* TODO: Move some of this into group editor init */
 $(document).ready(function(){
     $('.group_editor').each(function(i){
         //groupEditor();
@@ -196,13 +197,45 @@ $(document).ready(function(){
     });
 
     // Dialog			
+    
+    var selectImage = function() {
+        //console.log('Select the selected image');
+        if ($('#asset_chooser li.selected').length != 0) {
+            var image_id = $('#asset_chooser li.selected').attr('id').replace(/asset_/, '');
+            //console.log(image_id);
+            //console.log(groupEditor.currentGroupElement);
+            var element = $(groupEditor.currentGroupElement).parent();
+            $('img', element).attr('src', base + 'wildflower/thumbnail_by_id/' + image_id + '/50/50/1');
+            $('.group-editor-image', element).val(image_id);
+        }
+    }
+    
     $('#dialog').dialog({
+        open: function(event, ui) { 
+            $('#dialog').html('<div class="loading">Loading...</div>');
+            $('#dialog').load(base + '/wf/assets/choose', function(){
+                // #asset_chooser li
+                $('#asset_chooser li').click(function(){
+                    $('#asset_chooser li').removeClass('selected');
+                    $(this).addClass('selected');
+                });
+                $('#asset_chooser li').dblclick(function(){
+                    $('#asset_chooser li').removeClass('selected');
+                    $(this).addClass('selected');  
+                    selectImage();  
+                    $('#dialog').dialog('close');      
+                     
+                });
+            });
+        },
     	autoOpen: false,
         modal: true,
-    	width: 600,
+    	width: 660,
+        height: 415,
     	buttons: {
     		"OK": function() { 
     			$(this).dialog("close"); 
+                selectImage();
     		}, 
     		"Cancel": function() { 
     			$(this).dialog("close"); 
@@ -250,7 +283,37 @@ $(document).ready(function(){
     .delete-section {
         background-image: url(/cms/img/admin/delete.gif);        
     }
+    .loading {
+        font-size: 1.3em;
+        text-align: center;
+        padding-top: 30px;
+    }
     
+    #asset_chooser {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+    
+    #asset_chooser li {
+        display: block;
+        float: left;
+        width: 120px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        height: 130px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        overflow: hidden;
+        text-align: center;
+    }
+    #asset_chooser li:hover, #asset_chooser li.hover {
+        background-color: #eee;
+    }
+    #asset_chooser li.selected {
+        background-color: #ddd;
+        border-color: #aaa;
+    }
 </style>
 
 <div id="title-content">
