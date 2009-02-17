@@ -13,3 +13,5 @@ app/tmp/logs/*.log
 
 # Wildflower caches
 app/plugins/wildflower/tmp/cache/wf_thumbnails/*.jpg
+
+.svn
