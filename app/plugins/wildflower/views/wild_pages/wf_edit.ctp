@@ -5,6 +5,7 @@
     echo 
     $form->create('WildPage', array('url' => $html->url(array('action' => 'wf_update', 'base' => false)), 'class' => 'editor-form'));
 ?>
+
 <?
 
 $template['content-block'] = <<<EOF
@@ -251,6 +252,7 @@ $(document).ready(function(){
     }
     
 </style>
+
 <div id="title-content">
     <?php
         echo
@@ -262,12 +264,12 @@ $(document).ready(function(){
         $form->input('content', array(
             'type' => 'textarea',
             'tabindex' => '2',
-            'class' => 'group_editor',
+            'class' => 'tinymce',
             'rows' => '25',
             'label' => __('Body', true),
             'div' => array('class' => 'input editor'))),
-        '<div>';
-        echo $form->hidden('id'),
+        '<div>',
+        $form->hidden('id'),
         $form->hidden('draft'),
         '</div>';
     ?>
@@ -286,7 +288,6 @@ $(document).ready(function(){
 
             $first = '<span class="current-revision">&mdash;current version</span>';
             foreach ($revisions as $version) {
-            	//print_r($version);
                 $attr = '';
                 if (ListHelper::isOdd()) {
                     $attr = ' class="odd"';
