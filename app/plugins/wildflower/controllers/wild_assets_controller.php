@@ -163,6 +163,7 @@ class WildAssetsController extends WildflowerAppController {
     function thumbnail_by_id($id, $width = 120, $height = 120, $crop = 0) {
         $asset = $this->WildAsset->read(null, $id);
         $this->thumbnail($asset['WildAsset']['name'], $width, $height, $crop);
+        exit;
     }
     
     /**
@@ -172,6 +173,7 @@ class WildAssetsController extends WildflowerAppController {
      */
     function thumbnail($imageName, $width = 120, $height = 120, $crop = 0) {
         $this->autoRender = false;
+        header("Expires: ".gmdate("D, d M Y H:i:s", mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y") + 3))." GMT");
         
         $imageName = str_replace(array('..', '/'), '', $imageName); // Don't allow escaping to upper directories
 
