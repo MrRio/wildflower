@@ -113,8 +113,17 @@ class MediaView extends View {
 		if (is_array($mimeType)) {
 			$this->mimeType = array_merge($this->mimeType, $mimeType);
 		}
-
-		if (file_exists($path) && isset($extension) && isset($this->mimeType[$extension]) && connection_status() == 0) {
+        
+        if(!isset($extension)) {
+            preg_match("/\.([^\.]+)$/", $id, $matches);
+            $extension = $matches[1];
+        }
+        
+		if (!file_exists($path)) {
+		    trigger_error('File not found: ' . $path, E_USER_ERROR);
+		} elseif(!isset($this->mimeType[$extension])) {
+		    trigger_error('MIME type not found for extension \'' . $extension . '\'', E_USER_ERROR);
+		} elseif (connection_status() == 0) {
 			$chunkSize = 8192;
 			$buffer = '';
 			$fileSize = @filesize($path);

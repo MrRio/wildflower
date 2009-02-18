@@ -11,11 +11,17 @@
 $template['content-block'] = <<<EOF
 
 <div class="actions-handle action-attach">
-    <div class="content-block">
-        <img src="' + section.imageurl + '" />
-        <input type="button" value="Change Picture" onclick="groupEditor.changePicture(this)" />
+    <div class="content-block group-block">
+        <span class="alignment-attach">
+            <img title="Align image right" alt="right" src="' + base + 'img/admin/image-right.png" class="align-right' + (section.align == 'right' ? ' selected' : '') + '" />
+            <img title="Display image across the page" alt="center" src="' + base + 'img/admin/image-centre.png" class="align-center' + (section.align == 'center' ? ' selected' : '') + '" />
+            <img title="Align image left" alt="left" src="' + base + 'img/admin/image-left.png" class="align-left' + (section.align == 'left' ? ' selected' : '') + '" />                
+        </span>
+        <img class="thumbnail" src="' + section.imageurl + '" />
+        <input type="button" value="Change Picture" onclick="groupEditor.changeAsset(this)" />
         <input type="button" value="Remove Picture" onclick="groupEditor.removePicture(this)" />
         <input type="hidden" class="group-editor-image" value="' + section.image + '" />
+        <input type="hidden" class="group-editor-image-align" value="' + section.align + '" />
         <textarea class="group-editor-text">' + section.text + '</textarea>
     </div>
     <span class="row-actions">
@@ -28,6 +34,26 @@ $template['content-block'] = <<<EOF
 EOF;
 
 $template['content-block'] = str_replace(array("\n", "\r"), array("", ""), $template['content-block']);
+
+
+$template['file-block'] = <<<EOF
+
+<div class="actions-handle action-attach">
+    <div class="file-block group-block">
+        <span>' + section.title + '</span>&nbsp;&nbsp;<input type="button" value="Change File" onclick="groupEditor.changeAsset(this)" />
+        <input type="hidden" class="group-editor-file" value="' + section.file + '" />
+    </div>
+    <span class="row-actions">
+        <a title="Move up" href="#" onclick="groupEditor.moveSection(this, true)" class="move-up">Move up</a>
+        <a title="Move down" href="#" onclick="groupEditor.moveSection(this, false)" class="move-down">Move down</a>
+        <a title="Delete this page" href="#" class="delete-section" onclick="groupEditor.deleteSection(this)">Delete</a>
+    </span>
+</div>
+
+EOF;
+
+$template['file-block'] = str_replace(array("\n", "\r"), array("", ""), $template['file-block']);
+
 ?>
 <div id="dialog" title="Choose an image"></div>
 
@@ -69,7 +95,11 @@ var groupEditor = function (){
             try {
                 parsedContent = eval('(' + content + ')');
             } catch(e) {
-                parsedContent = [{type:'content', image: '', text:''}];
+                parsedContent = [{
+                    type: 'content',
+                    image: '',
+                    text: ''
+                }];
             }
             
             for(var i = 0; i < parsedContent.length; i ++) {
@@ -85,7 +115,9 @@ var groupEditor = function (){
                             break;
                     }
             }
-            $(el).parent().parent().append('<input type="button" onclick="groupEditor.appendContentBlock({type:\'content\', image: \'\', text:\'\'})" value="Add content block" />');
+            $('#edit-buttons').before('<div id="add-file" class="wf-form-button"><input type="button" onclick="groupEditor.appendFileBlock({type: \'file\', title: \'No file uploaded\', file: \'\' })" value="Add file" /></div>');
+            
+            $('#edit-buttons').before('<div id="add-content" class="wf-form-button"><input type="button" onclick="groupEditor.appendContentBlock({type:\'content\', image: \'\', text:\'\', align: \'right\'})" value="Add content block" /></div>');
         },
         
         appendContentBlock: function(section) {
@@ -94,6 +126,11 @@ var groupEditor = function (){
                 section.imageurl = base + 'wildflower/thumbnail_by_id/' + section.image + '/50/50/1';
             }
             $(el).parent().append('<?=$template["content-block"]?>');
+            this.attachHover();
+        },
+        
+        appendFileBlock: function(section) {
+            $(el).parent().append('<?=$template["file-block"]?>');
             this.attachHover();
         },
         
@@ -122,20 +159,31 @@ var groupEditor = function (){
             return false;
         },
         
-        changePicture: function(element) {
+        changeAsset: function(element) {
             this.currentGroupElement = element;
             $('#dialog').dialog('open');
         },
         
         removePicture: function(element) {
-            
-        },
-        
-        appendFileBlock: function() {
-            
+            //base + 'img/admin/no-image-selected.gif'
         },
         
         attachHover: function() {
+            
+            // Alignment buttons
+            
+            $('.alignment-attach img').hover(function(){
+                $(this).addClass('hover');
+            }, function(){
+                $(this).removeClass('hover');
+            }).click(function(){
+                $('img', $(this).parent()).removeClass('selected');
+                $(this).addClass('selected');
+            });
+            $('.alignment-attach').removeClass('alignment-attach').addClass('alignment');
+            
+            // Edit actions
+            
             var actionHandleEls = $('.action-attach');
             
             if (actionHandleEls.size() < 1) return;
@@ -180,8 +228,21 @@ var groupEditor = function (){
         serialize: function() {
             var serialized = new Array();
             
-            $('.content-block').each(function() {
-                serialized.push({ "type": "content", "image": $('.group-editor-image', $(this)).val() , "text": $('.group-editor-text', $(this)).val(), "align": "right"});
+            $('.group-block').each(function() {
+                if ($(this).hasClass('content-block')) {
+                    serialized.push({
+                        "type": "content",
+                        "image": $('.group-editor-image', $(this)).val(),
+                        "text": $('.group-editor-text', $(this)).val(),
+                        "align": $('.alignment img.selected', $(this)).attr('alt'),
+                    });
+                } else {
+                    serialized.push({
+                        "type": "file",
+                        "file": $('.group-editor-file', $(this)).val(),
+                        "title": $('span', $(this)).html()
+                    });                    
+                }
             })                      
             $('.group_editor').val($.toJSON(serialized));
         }
@@ -197,22 +258,34 @@ $(document).ready(function(){
 
     // Dialog			
     
-    var selectImage = function() {
-        //console.log('Select the selected image');
+    var saveAssetChoice = function() {
         if ($('#asset_chooser li.selected').length != 0) {
-            var image_id = $('#asset_chooser li.selected').attr('id').replace(/asset_/, '');
-            //console.log(image_id);
-            //console.log(groupEditor.currentGroupElement);
+            var asset_id = $('#asset_chooser li.selected').attr('id').replace(/asset_/, '');
             var element = $(groupEditor.currentGroupElement).parent();
-            $('img', element).attr('src', base + 'wildflower/thumbnail_by_id/' + image_id + '/50/50/1');
-            $('.group-editor-image', element).val(image_id);
+            if (element.hasClass('content-block')) {
+                $('img.thumbnail', element).attr('src', base + 'wildflower/thumbnail_by_id/' + asset_id + '/50/50/1');
+                $('.group-editor-image', element).val(asset_id);
+            } else if (element.hasClass('file-block')) {
+                $('.group-editor-file', element).val(asset_id);
+                $('span', element).html($('#asset_chooser li.selected span').html());
+            }
         }
     }
     
     $('#dialog').dialog({
         open: function(event, ui) { 
+            var element = $(groupEditor.currentGroupElement).parent();
+            var type;
+            if (element.hasClass('content-block')) {
+                type = 'image';
+                $('#dialog').dialog('option', 'title', 'Choose an image');
+            } else {
+                type = 'file';
+                $('#dialog').dialog('option', 'title', 'Choose a file');
+            }
+            
             $('#dialog').html('<div class="loading">Loading...</div>');
-            $('#dialog').load(base + '/wf/assets/choose', function(){
+            $('#dialog').load(base + '/wf/assets/choose/' + type, function(){
                 // #asset_chooser li
                 $('#asset_chooser li').click(function(){
                     $('#asset_chooser li').removeClass('selected');
@@ -221,9 +294,8 @@ $(document).ready(function(){
                 $('#asset_chooser li').dblclick(function(){
                     $('#asset_chooser li').removeClass('selected');
                     $(this).addClass('selected');  
-                    selectImage();  
-                    $('#dialog').dialog('close');      
-                     
+                    saveAssetChoice();  
+                    $('#dialog').dialog('close');
                 });
             });
         },
@@ -234,7 +306,7 @@ $(document).ready(function(){
     	buttons: {
     		"OK": function() { 
     			$(this).dialog("close"); 
-                selectImage();
+                saveAssetChoice();
     		}, 
     		"Cancel": function() { 
     			$(this).dialog("close"); 
@@ -246,7 +318,7 @@ $(document).ready(function(){
 
 </script>
 <style>
-    .content-block {
+    .content-block, .file-block {
         padding-bottom: 10px;
         border-bottom: 1px solid #ccc;
         margin-bottom: 10px;
@@ -313,6 +385,16 @@ $(document).ready(function(){
         background-color: #ddd;
         border-color: #aaa;
     }
+    
+    .alignment img {
+        border: 2px solid #fff;
+    }
+    .alignment img.hover {
+        border: 2px solid #ccc;
+    }    
+    .alignment img.selected {
+        border: 2px solid #999;
+    }        
 </style>
 
 <div id="title-content">

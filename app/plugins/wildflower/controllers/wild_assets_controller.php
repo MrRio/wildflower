@@ -8,8 +8,18 @@ class WildAssetsController extends WildflowerAppController {
         'order' => array('created' => 'desc')
     );
 	
-    function wf_choose() {
-        $assets = $this->WildAsset->findAll(array('mime' => array('image/jpeg', 'image/gif', 'image/png')));
+    function wf_choose($type = 'file') {
+        $image_types = array('image/jpeg', 'image/gif', 'image/png');
+        switch($type) {
+            case 'image':
+                $assets = $this->WildAsset->findAll(array('mime' => $image_types));
+                break;
+                
+            case 'file':
+                $assets = $this->WildAsset->findAll(array('NOT' => array('mime' => $image_types)));
+                break;
+        }
+        $this->set('type', $type);
         $this->set('assets', $assets);
     }
     
@@ -160,11 +170,50 @@ class WildAssetsController extends WildflowerAppController {
         Configure::write('debug', 0);
     }
     
+    /**
+     * Force the download of an asset.
+     * @return 
+     * @param $id Object
+     */
+    function asset_by_id($id) {
+        $this->view = 'Media';
+        $asset = $this->WildAsset->read(null, $id);
+        
+        $params = array(
+            'id' => $asset['WildAsset']['name'],
+            'name' => $asset['WildAsset']['title'],
+            'download' => true,
+            'path' => 'webroot' . DS . 'uploads' . DS
+        );
+        $this->set($params);
+    }
+    
     function thumbnail_by_id($id, $width = 120, $height = 120, $crop = 0) {
         $asset = $this->WildAsset->read(null, $id);
         $this->thumbnail($asset['WildAsset']['name'], $width, $height, $crop);
         exit;
     }
+    
+    /**
+     * TODO: Send image caching headers
+     * @return 
+     * @param $id Object
+     */
+    function icon_by_id($id) {
+        $asset = $this->WildAsset->read(null, $id);
+        preg_match("/\.([^\.]+)$/", $asset['WildAsset']['name'], $matches);
+        $extension = $matches[1];          
+        $this->layout = null; 
+        $path = APP . 'webroot' . DS . 'img' . DS . 'mime' . DS . 'smaller' . DS;
+        header("Content-type: image/png");
+        if(file_exists($path . $extension . '.png')) {
+            echo file_get_contents($path . $extension . '.png');
+            exit;
+        } else {
+            echo file_get_contents($path . 'file.png');
+            exit;            
+        }
+    }    
     
     /**
      * Create a thumbnail from an image, cache it and output it

@@ -201,17 +201,23 @@ class WildHelper extends WildflowerAppHelper {
     
     function renderPage($content) {
         $content = json_decode($content);
-        
         $output = '';
+        $height = array('left' => 320, 'center' => 780, 'right' => 320);
         foreach($content as $element) {
             switch($element->type) {
                 case 'content':
                     if($element->image != '') {
-                        $output .= '<div class="image-' . $element->align . '"><img src="' . $this->Html->url('/wildflower/thumbnail_by_id/' . $element->image . '/320/1000/0') . '" /></div>';
+                        $output .= '<div class="image-' . $element->align . '"><img src="' . $this->Html->url('/wildflower/thumbnail_by_id/' . $element->image . '/' . $height[$element->align] . 
+'/1200/0') . '" /></div>';
                     }
                     $output .= $this->Textile->format($element->text);
                     $output .= '<div class="clear"></div>';
                     break;
+                 case 'file':
+                    preg_match("/\.([^\.]+)$/", $element->file, $matches);
+                    $extension = $matches[1];                    
+                    $output .= '<div class="file-upload"><img src="' . $this->Html->url('/wildflower/icon_by_id/' . $element->file) . '" />' . $this->Html->link($element->title, '/wildflower/asset_by_id/' . $element->file) . '</div>';
+                     break;
             }
         }
         return $output;
