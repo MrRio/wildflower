@@ -221,6 +221,21 @@ class WildAssetsController extends WildflowerAppController {
      * @param $imageName File name from webroot/uploads/
      */
     function thumbnail($imageName, $width = 120, $height = 120, $crop = 0) {
+        preg_match("/\.([^\.]+)$/", $imageName, $matches);
+        $extension = $matches[1];    
+        $image_types = array('jpg', 'jpeg', 'png', 'bmp', 'gif');
+        if(!in_array($extension, $image_types)) {
+        $this->layout = null; 
+            $path = APP . 'webroot' . DS . 'img' . DS . 'mime' . DS . 'smaller' . DS;
+            header("Content-type: image/png");
+            if(file_exists($path . $extension . '.png')) {
+                echo file_get_contents($path . $extension . '.png');
+                exit;
+            } else {
+                echo file_get_contents($path . 'file.png');
+                exit;            
+            }            
+        }
         $this->autoRender = false;
         header("Expires: ".gmdate("D, d M Y H:i:s", mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y") + 3))." GMT");
         
