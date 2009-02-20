@@ -15,3 +15,5 @@ app/tmp/logs/*.log
 app/plugins/wildflower/tmp/cache/wf_thumbnails/*.jpg
 
 .svn
+app/webroot/uploads/*
+.project
