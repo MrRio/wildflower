@@ -199,8 +199,8 @@ class WildHelper extends WildflowerAppHelper {
         return WildflowerHelper::slug(low($label), '-');
     }
     
-    function renderPage($content) {
-        $content = json_decode($content);
+    function renderPage($content_string) {
+        $content = json_decode($content_string);
         $output = '';
         $height = array('left' => 320, 'center' => 780, 'right' => 320);
         foreach($content as $element) {
@@ -210,7 +210,7 @@ class WildHelper extends WildflowerAppHelper {
                         $output .= '<div class="image-' . $element->align . '"><img src="' . $this->Html->url('/wildflower/thumbnail_by_id/' . $element->image . '/' . $height[$element->align] . 
 '/1200/0') . '" /></div>';
                     }
-                    $output .= $this->Textile->format($element->text);
+                    $output .= $element->text;
                     $output .= '<div class="clear"></div>';
                     break;
                  case 'file':

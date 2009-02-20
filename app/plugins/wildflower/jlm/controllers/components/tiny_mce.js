@@ -27,11 +27,11 @@ $.jlm.addComponent('tinyMce', {
             mode: "none",
             theme: "advanced",
             // @TODO cleanup unneeded plugins
-            plugins: "wfinsertimage,safari,style,paste,directionality,visualchars,nonbreaking,xhtmlxtras,inlinepopups,fullscreen",
+            plugins: "wfinsertimage,safari,style,paste,directionality,visualchars,nonbreaking,xhtmlxtras",
             doctype: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
 
             // Theme options
-            theme_advanced_buttons1: "undo,redo,|,bold,italic,strikethrough,|,formatselect,|,bullist,numlist,|,outdent,indent,blockquote,|,link,unlink,wfinsertimage,|,charmap,code,fullscreen",
+            theme_advanced_buttons1: "undo,redo,|,bold,italic,strikethrough,|,formatselect,|,bullist,numlist,|,outdent,indent,blockquote,|,link,unlink,|,charmap,code,fullscreen",
     		theme_advanced_buttons2: "",
     		theme_advanced_buttons3: "",
             theme_advanced_toolbar_location: "top",

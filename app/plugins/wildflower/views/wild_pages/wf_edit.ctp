@@ -22,7 +22,7 @@ $template['content-block'] = <<<EOF
         <input type="button" value="Remove Picture" onclick="groupEditor.removePicture(this)" />
         <input type="hidden" class="group-editor-image" value="' + section.image + '" />
         <input type="hidden" class="group-editor-image-align" value="' + section.align + '" />
-        <textarea class="group-editor-text">' + section.text + '</textarea>
+        <textarea class="group-editor-text" id="tiny-mce-' + (tinyMCEid) + '">' + section.text + '</textarea>
     </div>
     <span class="row-actions">
         <a title="Move up" href="#" onclick="groupEditor.moveSection(this, true)" class="move-up">Move up</a>
@@ -80,6 +80,7 @@ var groupEditor = function (){
     // Private variables and functions
     var el;
     var id;
+    var tinyMCEid = 0;
     
     return {
         currentGroupElement: null,
@@ -125,7 +126,9 @@ var groupEditor = function (){
             if(section.image != '') {
                 section.imageurl = base + 'wildflower/thumbnail_by_id/' + section.image + '/50/50/1';
             }
+            tinyMCEid ++;
             $(el).parent().append('<?=$template["content-block"]?>');
+            tinyMCE.execCommand("mceAddControl", true, 'tiny-mce-' + tinyMCEid);            
             this.attachHover();
         },
         
@@ -142,16 +145,33 @@ var groupEditor = function (){
         },
         
         moveSection: function(element, up) {
+            // Remove and reapply tinymce
+            var removeMCE = function(){
+                $('.group-editor-text').each(function(){
+                    tinyMCE.execCommand("mceRemoveControl", true, $(this).attr('id'));
+                });
+            }
+            
+            var addMCE = function() {
+                $('.group-editor-text').each(function(){
+                    tinyMCE.execCommand("mceAddControl", true, $(this).attr('id'));
+                });                
+            }
+            
             var element = $(element).parent().parent();
             if(up) {
                 if (element.prev().hasClass('actions-handle')) {
+                    removeMCE();
                     element.swap(element.prev());
+                    addMCE();
                 } else {
                     alert('Sorry, this section cannot be moved any further up.');
                 }
             } else {
                 if (element.next().hasClass('actions-handle')) {
-                    element.swap(element.next());                    
+                    removeMCE();
+                    element.swap(element.next());   
+                    addMCE();                 
                 } else {
                     alert('Sorry, this section cannot be moved any further down.');
                 }
@@ -318,6 +338,9 @@ $(document).ready(function(){
 
 </script>
 <style>
+    .mceEditor {
+        margin-top: 1em;
+    }
     .content-block, .file-block {
         padding-bottom: 10px;
         border-bottom: 1px solid #ccc;

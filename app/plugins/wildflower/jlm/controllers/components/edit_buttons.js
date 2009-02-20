@@ -15,32 +15,35 @@ $.jlm.component('EditButtons', 'wild_posts.wf_edit, wild_posts.wf_categorize, wi
         
         // Do AJAX save
         // Save content back to textareas
-        groupEditor.serialize();
-
-        // Do AJAX form submit
-        var successCallback = function(json) {
-            buttonEl.attr('value', originalLabel).removeAttr('disabled');
-
-            // Update post info
-            $('.post-info').html(json['post-info']).effect('highlight', {}, 4000);
+        tinyMCE.triggerSave();
+        setTimeout(function() {
+            groupEditor.serialize();
+            // Do AJAX form submit
+            var successCallback = function(json) {
+                buttonEl.attr('value', originalLabel).removeAttr('disabled');
+    
+                // Update post info
+                $('.post-info').html(json['post-info']).effect('highlight', {}, 4000);
+                
+                // Update buttons
+                $('#edit-buttons').html(json['edit-buttons']);
+                
+                // Rebind
+                $('.submit input').click(editButtonsOnClick);
+            };
             
-            // Update buttons
-            $('#edit-buttons').html(json['edit-buttons']);
-            
-            // Rebind
-            $('.submit input').click(editButtonsOnClick);
-        };
-        
-        var errorCallback = function(data) {
-            alert('Error while saving. Check FireBug console for debug data.');
-            if (typeof(console) == 'object') {
-                console.debug(data);
+            var errorCallback = function(data) {
+                alert('Error while saving. Check FireBug console for debug data.');
+                if (typeof(console) == 'object') {
+                    console.debug(data);
+                }
+                buttonEl.attr('value', originalLabel).removeAttr('disabled');
             }
-            buttonEl.attr('value', originalLabel).removeAttr('disabled');
-        }
-        
-        var formEl = buttonEl.parents('form').eq(0);
-        formEl.ajaxSubmit({ dataType: 'json', success: successCallback, error: errorCallback });
+            
+            var formEl = buttonEl.parents('form').eq(0);
+            formEl.ajaxSubmit({ dataType: 'json', success: successCallback, error: errorCallback });
+                        
+        }, 10);
         
         return false;
     }
