@@ -64,7 +64,7 @@ img {
     }
 
 #header {
-    background: #406d95;
+    background: #275e9d;
     overflow: hidden;
     color: #eee;
 }
@@ -110,12 +110,12 @@ img {
     #nav a {
         display: block;
         height: 12px;
-        margin: 0 3px 0 0;
+        margin: 0 2px 0 0;
         padding: 4px 9px 9px 9px;
-        background-color: #7f7f7f;
+        background-color: #3b3b3b;
         color: #fff;
         text-decoration: none;
-        -moz-border-radius: 3px 3px 0 0;
+        -moz-border-radius: 4px 4px 0 0;
         -webkit-border-top-left-radius: 3px;
         -webkit-border-top-right-radius: 3px;
         border-radius: 3px 3px 0 0;
@@ -145,6 +145,20 @@ img {
     position: relative;
     margin: 12px 0 8px 0;
     background: #fff;
+}
+
+#co_right_shadow {
+    background: url(img/wrap_shadow_right.png) right top repeat-y;
+}
+
+#co_bottom_shadow {
+    background: url(img/wrap_bottom_shadow.png) left bottom repeat-x;
+}
+
+#co_right_bottom_corner {
+    padding-bottom: 10px;
+    padding-right: 16px;
+    background: url(img/wrap_shadow_right_bottom_corner.png) right bottom no-repeat;
 }
 
 #content-pad {
@@ -809,7 +823,38 @@ select {
     }
     
     #image-browser .selected {
+        background-color: #0033CC;
+        color: #fff;
     }
+    
+    #image-browser .selected a {
+        color: #fff;
+    }
+    
+    #image-browser .sidebar-box {
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none;
+    }
+    
+.sidebar-box h5 {
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0 0 1em 0;
+}
+
+#resize_image {
+    padding: 10px;
+    background-color: #ebebeb;
+}
+
+.sidebar-box .paginator {
+    font-size: 11px;
+}
+
+.sidebar-box button {
+    font-size: 12px;
+}
     
     
 /* Reorder list */

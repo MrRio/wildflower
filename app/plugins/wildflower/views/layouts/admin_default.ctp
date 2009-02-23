@@ -35,7 +35,10 @@
             base: '<?php echo $this->base ?>',
             controller: '<?php echo $this->params['controller'] ?>',
             action: '<?php echo $this->params['action'] ?>', 
-            prefix: '<?php echo Configure::read('Wildflower.prefix') ?>' 
+            prefix: '<?php echo Configure::read('Wildflower.prefix') ?>',
+            custom: {
+                wildflowerUploads: '<?php echo Configure::read('Wildflower.uploadsDirectoryName'); ?>'
+            }
         });
         
         tinyMCE.init($.jlm.components.tinyMce.getConfig());
@@ -73,28 +76,33 @@
     </div>
 </div>
 
-<div id="whiteness">
-    <div id="wrap">
-        <div id="content">
-            <div id="content-pad">
-                <?php echo $content_for_layout; ?>
-            </div>
+<div id="wrap">
+    <div id="content">
+        <div id="co_bottom_shadow">
+        <div id="co_right_shadow">
+        <div id="co_right_bottom_corner">
+        <div id="content-pad">
+            <?php echo $content_for_layout; ?>
         </div>
-        
-        <?php if (isset($sidebar_for_layout)): ?>
-        <div id="sidebar">
-            <ul>
-                <?php echo $sidebar_for_layout; ?>
-            </ul>
         </div>
-        <?php endif; ?>
-            
-        <div class="cleaner"></div>
+        </div>
+        </div>
     </div>
+    
+    <?php if (isset($sidebar_for_layout)): ?>
+    <div id="sidebar">
+        <ul>
+            <?php echo $sidebar_for_layout; ?>
+        </ul>
+    </div>
+    <?php endif; ?>
+        
+    <div class="cleaner"></div>
 </div>
 
 <p id="footer">
-    <?php echo $html->link(__('Powered by Wildflower', true), array('controller' => 'wild_pages', 'action' => 'wf_about')); ?>
+    <?php echo $html->link(__('Powered by Wildflower', true), array('controller' => 'wild_pages', 'action' => 'wf_about')); ?>&nbsp;&nbsp;
+    <?php if (Configure::read('debug') > 0) echo __('Debug mode'), ' ', Configure::read('debug'); ?>
 </p>
 
 </body>

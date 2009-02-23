@@ -1,21 +1,16 @@
-<?php 
-// Revision mockup class
-class WildRevision {
-    public $name = '';
-    function find() {
-        return array();
-    }
-    function save($data) {
-        return $data;
-    }
-}
-
-App::import('Model', 'Wildflower.WildPage');
+<?php
+require_once(APP . 'plugins' . DS . 'wildflower' . DS . 'config' . DS . 'routes.php');
 
 class WildPageTestCase extends CakeTestCase {
     public $fixtures = array(
         'plugin.wildflower.wild_page',
         'plugin.wildflower.wild_user',
+        'plugin.wildflower.wild_revision',
+        'plugin.wildflower.wild_post',
+        'plugin.wildflower.wild_comment',
+        'plugin.wildflower.wild_category',
+        'plugin.wildflower.categories_post',
+        'plugin.wildflower.wild_setting',
     );
     private $Page;
     
@@ -28,16 +23,21 @@ class WildPageTestCase extends CakeTestCase {
     	unset($this->Page);
     }
     
-    function testGetSelectBoxData() {
-        $result = $this->Page->getSelectBoxData(2);
+    function testUseDbConfig() {
+        $this->assertEqual($this->Page->useDbConfig, 'test_suite');
+        $this->assertEqual($this->Page->WildUser->useDbConfig, 'test_suite');
+    }
+    
+    function testGetListThreadedWithSkipId() {
+        $result = $this->Page->getListThreaded(2);
         $expected = array(
             '1' => 'Article 1',
             '3' => 'Krátka správa');
         $this->assertEqual($result, $expected);
     }
     
-    function testGetSelectBoxDataNoArg() {
-        $result = $this->Page->getSelectBoxData();
+    function testGetListThreaded() {
+        $result = $this->Page->getListThreaded();
         $expected = array(
             '1' => 'Article 1',
             '2' => 'Simple',

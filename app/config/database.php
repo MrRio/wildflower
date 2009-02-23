@@ -92,38 +92,6 @@ class DATABASE_CONFIG {
 	);
 	
 	/**
-	 * This is the configuration for wf.klevo.sk
-	 *
-	 * @var array
-	 */
-	public $production = array(
-		'driver' => 'mysqli',
-		'persistent' => false,
-		'host' => 'localhost',
-		'login' => '',
-		'password' => '',
-		'database' => '',
-		'port' => '/tmp/mysql50.sock',
-	    'domain' => 'wf.klevo.sk'
-	);
-	
-	/**
-	 * This is the configuration for dev.wf.klevo.sk
-	 *
-	 * @var array
-	 */
-	public $production_dev = array(
-		'driver' => 'mysqli',
-		'persistent' => false,
-		'host' => 'localhost',
-		'login' => '',
-		'password' => '',
-		'database' => '',
-		'port' => '/tmp/mysql50.sock',
-	    'domain' => 'dev.wf.klevo.sk'
-	);
-	
-	/**
 	 * This is for unit tests
 	 *
 	 * @var array
